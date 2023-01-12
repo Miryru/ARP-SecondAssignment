@@ -254,9 +254,9 @@ int main(int argc, char const *argv[])
 
         
         //update the position of the blue circle
-        cancel_blue_circle(30,old_x,old_y,bmp);
+        cancel_blue_circle(radius,old_x,old_y,bmp);
 
-        draw_blue_circle(30,x_cord[y-1],y_cord[y-1],bmp);  
+        draw_blue_circle(radius,x_cord[y-1],y_cord[y-1],bmp);  
    
         
         }
