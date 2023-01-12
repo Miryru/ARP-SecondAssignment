@@ -127,10 +127,14 @@ int main(int argc, char const *argv[])
     bmp = bmp_create(width, height, depth);
 
     int center_cord = 0;
-    int x_cord[600];
     int y_cord[600];
+    int x_cord[600];
     int y;
     int flag ;
+    int old_x;
+    int old_y;
+
+    int radius = 30;
 
     semaphore = sem_open("/mysem", 0);
     semaphore2 = sem_open("/mysem2", 0);
@@ -183,10 +187,24 @@ int main(int argc, char const *argv[])
 
         sem_wait(semaphore2);
 
+        //old center
+        if(y_cord[y-1] != 0 && x_cord[y-1] != 0)
+        {
+            old_x = x_cord[y-1];
+            old_y = y_cord[y-1];
+        }
+        
         for (int i=0;i<600;i++)
         {
-        x_cord[i]=0;
-        y_cord[i]=0;
+            if(y_cord[i] != 0)
+            {
+                y_cord[i]=0;
+            }
+            else if(x_cord[i] != 0)
+            {
+                x_cord[i]=0;
+            }
+        
         }
 
         center_cord = 0;
@@ -205,10 +223,10 @@ int main(int argc, char const *argv[])
             for (j = 0; j < 600; j++) {
                 if (ShmPTR->m[i][j] == 1)
                 {
-                    x_cord[y] = j;
-                    y_cord[y] = i;
+                    y_cord[y] = j;
+                    x_cord[y] = i;
 
-                    if (x_cord[y] > x_cord[y-1]) {
+                    if (y_cord[y] > y_cord[y-1]) {
 
                         flag = 1;
                         break;
@@ -222,23 +240,23 @@ int main(int argc, char const *argv[])
             }
         }
 
-        center_cord = x_cord[y-1] + 30;
+        
 
         sprintf(log_buffer, "<Process_B> Position of center updated: %s\n", asctime(info));
         check = write(log_fd, log_buffer, strlen(log_buffer));
         CheckCorrectness(check);
 
-        mvaddch(floor((int)(center_cord/20)),floor((int)(y_cord[y-1]/20)), '0');
+        mvaddch(floor((int)((y_cord[y-1]+radius)/20)),floor((int)(x_cord[y-1]/20)), '0');
 
         refresh();
 
         sem_post(semaphore);
 
-        //da sistemare
+        
+        //update the position of the blue circle
+        cancel_blue_circle(30,old_x,old_y,bmp);
 
-        // cancel_blue_circle(30,y_cord[y-1],center_cord,bmp);
-
-        // draw_blue_circle(30,y_cord[y-1],center_cord,bmp);  
+        draw_blue_circle(30,x_cord[y-1],y_cord[y-1],bmp);  
    
         
         }
