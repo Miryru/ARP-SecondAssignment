@@ -214,6 +214,7 @@ int main(int argc, char const *argv[])
         y = 0;
         flag = 0;
         
+        //algorithm to find the center of the circle
         for (i = 0; i < 1600; i++) {
             
             if (flag == 1) {
