@@ -8,45 +8,44 @@
 #include <time.h>
 
 // Variables to store the PIDs
-pid_t pid_procA;
-pid_t pid_procB;
+pid_t pid_procA;  // PID of process A
+pid_t pid_procB;  // PID of process B
 
 // Buffer to store the string to write to the log file
-char log_buffer[100];
+char log_buffer[100];   
 
 // File descriptor for the log file
-int log_fd;
+int log_fd;  
 
 // Variable to store the value of the write function
 int check;
 
 // Function to check the correctness of the operation just done
-void CheckCorrectness(int c) 
-{
+void CheckCorrectness(int c) {
     if(c == -1) 
     {
-        close(log_fd);
-        perror("Error in writing function");
-        exit(1);
+        close(log_fd);  // Close the log file
+        perror("Error in writing function");  // Print the error
+        exit(1);  // Exit the program
     }
 }
 
+// Function to spawn a child process
 int spawn(const char * program, char * arg_list[]) {
-
-  pid_t child_pid = fork();
+  pid_t child_pid = fork();   // Fork the process and store the PID of the child process
 
   if(child_pid < 0) {
-    perror("Error while forking...");
-    return 1;
+    perror("Error while forking...");   // Print the error
+    return 1;  
   }
 
   else if(child_pid != 0) {
-    return child_pid;
+    return child_pid;   // Return the PID of the child process
   }
 
   else {
-    if(execvp (program, arg_list) == 0);
-    perror("Exec failed");
+    if(execvp (program, arg_list) == 0);    
+    perror("Exec failed");  
     return 1;
   }
 }
@@ -54,12 +53,13 @@ int spawn(const char * program, char * arg_list[]) {
 // Function to get when a file was last modified
 time_t get_last_modified(char *filename)
 {
-  struct stat attr;
-  stat(filename, &attr);
+  struct stat attr;   // Structure to store the attributes of the file
+  stat(filename, &attr);  // Get the attributes of the file
 
-  return attr.st_mtime;
+  return attr.st_mtime;  // Return the last modified time
 }
 
+// Function to check if the child processes are running
 int watchdog()
 {
   // Array of the log file paths
@@ -88,7 +88,7 @@ int watchdog()
       // Check if the file was modified in the last 3 seconds
       if (current_time - last_modified > 3)
       {
-        modified = 0;
+        modified = 0; 
       }
       else
       {
@@ -112,8 +112,7 @@ int watchdog()
       return 0;
     }
 
-    // Sleep for 2 seconds
-    sleep(2);
+    sleep(2);   // Sleep for 2 seconds
   }
 }
 
@@ -122,7 +121,7 @@ int main() {
   // Open the log file
   if ((log_fd = open("master.log",O_WRONLY|O_APPEND|O_CREAT, 0666)) == -1)
   {
-    perror("Error opening log file");
+    perror("Error opening log file"); // Print the error
     return 1;
   }
         
@@ -145,14 +144,14 @@ int main() {
   char * arg_list_B[] = { "/usr/bin/konsole", "-e", "./bin/processB", NULL };
   pid_procB = spawn("/usr/bin/konsole", arg_list_B);
 
-  // // Create the log files
+  // Create the log files and open them
   int fd_pa = open("processA.log", O_CREAT | O_RDWR, 0666);
   int fd_pb = open("processB.log", O_CREAT | O_RDWR, 0666);
   
   // Check corecctness
   if(fd_pa <0 || fd_pb <0)
   {
-    printf("Error opening FILE");
+    printf("Error opening FILE");   // Print the error
   }
  
   // Close the log files
@@ -162,24 +161,25 @@ int main() {
   // Whatchdog funcion call
   watchdog();
 
-  int status;
+  int status;  // Variable to store the status of the child processes
 
   // Check PIDs
-  waitpid(pid_procA, &status, 0);
-  waitpid(pid_procB, &status, 0);
+  waitpid(pid_procA, &status, 0); // Wait for the process A to finish
+  waitpid(pid_procB, &status, 0); // Wait for the process B to finish
 
   // Get the time when the Master finishes its execution
   time( &rawtime );
   info = localtime(&rawtime);
 
   // write into the log file
-  sprintf(log_buffer, "<master_process> Master process terminated: %s\n", asctime(info));
-  check = write(log_fd, log_buffer, strlen(log_buffer));
-  CheckCorrectness(check);
+  sprintf(log_buffer, "<master_process> Master process terminated: %s\n", asctime(info)); // Write into the log file
+  check = write(log_fd, log_buffer, strlen(log_buffer));  // Check correctness
+  CheckCorrectness(check);  // Check correctness
   
   // Close the log file
   close(log_fd);
   
+  // Print the status of the child processes
   printf ("Main program exiting with status %d\n", status);
   return 0;
 }
