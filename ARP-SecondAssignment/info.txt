@@ -18,12 +18,12 @@ The repository is organized as follows:
 After compiling the program other two directories will be created:
 
 - the `bin` folder contains all the executable files
-- the `log` folder will contain all the log files of the processes after the program will be executed
+- the `out` folder will contain the picture (.bmp) taken by the processA
 
 
 To compile:
 
-$ bash compile.sh
+$ bash ./compile.sh
 
 
 After that run the program with the command:

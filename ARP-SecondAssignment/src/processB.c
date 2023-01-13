@@ -10,6 +10,7 @@
 #include <bmpfile.h>
 #include <math.h>
 #include <semaphore.h>
+#include <errno.h>
 
 // Declaration variables for bmp file
 const int width = 1600;
@@ -22,7 +23,7 @@ struct shared
     int m[1600][600];   // Matrix for the shared memory
 };
 
-//const char * sem_fn = { "my_sem"};
+// Define semapthores
 sem_t *semaphore;
 sem_t *semaphore2;
 
@@ -111,14 +112,14 @@ int main(int argc, char const *argv[])
     ShmID = shmget(ShmKEY, sizeof(struct shared), 0666);    // Get the ID of the shared memory
 
     if (ShmID < 0) {
-        printf("*** shmget error (server) ***\n");  // If the ID is not correct, print an error message
+        perror("*** shmget error (server) ***\n");  // If the ID is not correct, print an error message
         exit(1);
     }
 
     ShmPTR = (struct shared *) shmat(ShmID, NULL, 0);   // Attach the shared memory to the pointer
 
     if ((int) ShmPTR == -1) {
-        printf("*** shmat error (server) ***\n");   // If the pointer is not correct, print an error message
+        perror("*** shmat error (server) ***\n");   // If the pointer is not correct, print an error message
         exit(1);
     }
 
@@ -165,8 +166,6 @@ int main(int argc, char const *argv[])
         // Get input in non-blocking mode
         int cmd = getch();
        
-        
-        
         // If user resizes screen, re-draw UI...
         if(cmd == KEY_RESIZE) {
             if(first_resize) {
@@ -176,10 +175,7 @@ int main(int argc, char const *argv[])
                 reset_console_ui(); // Re-draw UI
             }
         }
-
-        else
-        {
-
+        else {
             mvaddch(LINES/2, COLS/2, '0');  // Draw the center of the circle
 
             refresh();  // Refresh the screen
@@ -231,7 +227,7 @@ int main(int argc, char const *argv[])
                             break;
                         }
 
-                        y++;    // Increment the y coordinate
+                        y++;    // Increment the y index
                         break;
                     }
                 }
@@ -245,6 +241,7 @@ int main(int argc, char const *argv[])
 
             refresh();
 
+            //increment the semaphore
             sem_post(semaphore);
 
             
@@ -256,7 +253,7 @@ int main(int argc, char const *argv[])
     }
 
     sem_close(semaphore);   // Close the semaphore
-    sem_close(semaphore2);  // Close the semaphore
+    sem_close(semaphore2);  // Close the semaphore2
 
     shmdt((void *) ShmPTR); // Detach the shared memory
     bmp_destroy(bmp);       // Destroy the bitmap

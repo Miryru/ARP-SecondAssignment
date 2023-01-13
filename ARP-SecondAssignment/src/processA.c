@@ -25,7 +25,7 @@ struct shared
     int m[1600][600];   // Matrix of shared memory
 };
 
-//const char * sem_fn = {"my_sem"};
+// Define semaphores
 sem_t *semaphore;   // Semaphore
 sem_t *semaphore2;  // Semaphore
 
@@ -117,14 +117,14 @@ int main(int argc, char *argv[])
     ShmKEY = ftok(".", 'x');    // Get the key
     ShmID = shmget(ShmKEY, sizeof(struct shared), IPC_CREAT | 0666);    // Get the ID
     if (ShmID < 0) {
-        printf("*** shmget error (server) ***\n");  // If the ID is not correct, print an error message
+        perror("*** shmget error (server) ***\n");  // If the ID is not correct, print an error message
         exit(1);
     }
 
 
     ShmPTR = (struct shared *) shmat(ShmID, NULL, 0);   // Attach the shared memory
     if ((int) ShmPTR == -1) {
-        printf("*** shmat error (server) ***\n");   // If the attach is not correct, print an error message
+        perror("*** shmat error (server) ***\n");   // If the attach is not correct, print an error message
         exit(1);
     }
 
@@ -198,19 +198,16 @@ int main(int argc, char *argv[])
         else if(cmd == KEY_LEFT || cmd == KEY_RIGHT || cmd == KEY_UP || cmd == KEY_DOWN) 
         {
             
-            sem_wait(semaphore);    // Wait the semaphore
-            
+            sem_wait(semaphore);    // Wait for the semaphore
             
             // Write to the log file
             sprintf(log_buffer, "<Process_A> Keyboard button pressed: %s\n", asctime(info));    // Get the time
             check = write(log_fd, log_buffer, strlen(log_buffer));  // Write to the log file
             CheckCorrectness(check);    // Check if the write is correct
             
-
             move_circle(cmd);   // Move the circle
             draw_circle();  // Draw the circle
     
-            
             cancel_blue_circle(radius,x,y, bmp);    // Cancel the circle
             for (int i = 0; i < 1600; i++) {
                 for (int j = 0; j < 600; j++) {
