@@ -4,7 +4,7 @@ Assignment given by the professor Renato Zaccaria for the course "Advanced and R
 
 The project provides you with a base infrastructure for the implementation of the simulated vision system through shared memory, according to the requirements specified in the PDF file of the assignment.
 
-###```Read the [info.txt] to know the info about the project.```
+### ```Read the [info.txt] to know the info about the project.```
 -----
 
 ## Library installation and usage guide 
